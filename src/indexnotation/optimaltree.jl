@@ -51,7 +51,7 @@ _isemptyset(s::Unsigned) = iszero(s)
 _isemptyset(s::BitVector) = !any(s)
 _isemptyset(s::BitSet) = isempty(s)
 
-addcost(cost1::Integer, cost2::Integer, costs::Vararg{<:Integer}) = Base.Checked.checked_add(cost1, cost2, costs...)
+addcost(cost1::Integer, cost2::Integer, costs::Vararg{Integer}) = Base.Checked.checked_add(cost1, cost2, costs...)
 mulcost(cost1::Integer, cost2::Integer) = Base.Checked.checked_mul(cost1, cost2)
 addcost(cost1, cost2, costs...) = +(cost1, cost2, costs...)
 mulcost(cost1, cost2) = cost1*cost2

@@ -36,6 +36,11 @@ Fast tensor operations using a convenient Einstein index notation.
 [genie-img]: https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/TensorOperations
 [genie-url]: https://pkgs.genieframework.com?packages=TensorOperations
 
+## New in version 3.2.5
+
+*   With Julia 1.9, CUDA support is an extension, so the CUDA package will only be
+    required if actually needed.
+
 ## What's new in v3
 
 *   Switched to CUDA.jl instead of CuArrays.jl, which effectively restricts support to

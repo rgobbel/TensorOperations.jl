@@ -6,13 +6,16 @@ using Strided: AbstractStridedView, UnsafeStridedView
 using LinearAlgebra
 using LinearAlgebra: mul!, BLAS.BlasFloat
 using LRUCache
-using Requires
+
+if !isdefined(Base, :get_extension)
+    using Requires
+end
+
 
 # Exports
 #---------
 # export macro API
 export @tensor, @tensoropt, @tensoropt_verbose, @optimalcontractiontree, @notensor, @ncon
-export @cutensor
 
 export enable_blas, disable_blas, enable_cache, disable_cache, clear_cache, cachesize
 
@@ -143,34 +146,10 @@ cachesize() = cache.currentsize
 function __init__()
     resize!(cache; maxsize = default_cache_size())
 
-    @require CUDA="052768ef-5323-5732-b1bb-66c8b64840ba" begin
-        if CUDA.functional() && CUDA.has_cutensor()
-            const CuArray = CUDA.CuArray
-            const CublasFloat = CUDA.CUBLAS.CublasFloat
-            const CublasReal = CUDA.CUBLAS.CublasReal
-            for s in (:handle, :CuTensorDescriptor, :cudaDataType,
-                    :cutensorContractionDescriptor_t, :cutensorContractionFind_t,
-                    :cutensorContractionPlan_t,
-                    :CUTENSOR_OP_IDENTITY, :CUTENSOR_OP_CONJ, :CUTENSOR_OP_ADD,
-                    :CUTENSOR_ALGO_DEFAULT,  :CUTENSOR_WORKSPACE_RECOMMENDED,
-                    :cutensorPermutation, :cutensorElementwiseBinary, :cutensorReduction,
-                    :cutensorReductionGetWorkspace, :cutensorComputeType,
-                    :cutensorGetAlignmentRequirement, :cutensorInitContractionDescriptor,
-                    :cutensorInitContractionFind, :cutensorContractionGetWorkspace,
-                    :cutensorInitContractionPlan, :cutensorContraction)
-                eval(:(const $s = CUDA.CUTENSOR.$s))
-            end
-            if isdefined(CUDA, :default_stream)
-                const default_stream = CUDA.default_stream
-            else
-                const default_stream = CUDA.CuDefaultStream
-            end
-            include("implementation/cuarray.jl")
-            @nospecialize
-            include("indexnotation/cutensormacros.jl")
-            @specialize
-        end
+    @static if !isdefined(Base, :get_extension)
+        @require CUDA="052768ef-5323-5732-b1bb-66c8b64840ba" include("../ext/TensorOperationsCUDAExt/TensorOperationsCUDAExt.jl")
     end
+
 end
 
 # Some precompile statements
